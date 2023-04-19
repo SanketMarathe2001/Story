@@ -1,0 +1,415 @@
+﻿Practical 1a Handling Missing values
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns  
+dataset = pd.read_csv('Placement_Dataset.csv') 
+dataset.head()
+dataset.shape
+dataset.isnull().sum() 
+fig,ax= plt.subplots(figsize=(8,8))
+sns.displot(dataset.salary) 
+
+dataset['salary'].fillna(dataset['salary'].median(), inplace=True) 
+dataset.isnull().sum()
+
+dataset1 = pd.read_csv('Placement_Dataset.csv') 
+dataset1.shape
+dataset1.isnull().sum() 
+dataset1=dataset1.dropna(how='any') 
+dataset1.isnull().sum()
+dataset1.shape
+
+Practical 1b Label Encoding
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder 
+
+cancer = pd.read_csv('data.csv')
+cancer.head()
+cancer['diagnosis'].value_counts() 
+
+label_en = LabelEncoder () 
+labels = label_en.fit(cancer.diagnosis)
+cancer['target'] = labels 
+cancer.head() 
+cancer['target'].value_counts() 
+
+iris = pd.read_csv('iris_data.csv')
+iris.head() 
+iris['Species'].value_counts() 
+
+Practical 2 Linear Regression
+
+#importing important libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score,mean_squared_error
+
+data = pd.read_csv("/content/housingData-Real.csv")
+
+df.info()
+df.describe()
+df.isnull().sum()
+df['date']=pd.to_datetime(df['date'])
+df.info()
+df.drop(['id','date'],axis=1,inplace=True)
+df.head()
+
+
+# selecting the column sqft_living
+X = df.sqft_living
+Y =df.price
+#converting into 2d array
+X=np.array(X).reshape(-1,1)
+Y=np.array(Y).reshape(-1,1)
+#splitting into training and testing dataset
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,random_state=101)
+model1 = LinearRegression()
+model1.fit(X_train,Y_train)
+
+Y_pred = model1.predict(X_test)
+# evaltion metric to check how close the prdicted value is
+a=r2_score(Y_test,Y_pred)
+a 
+
+#graphical representation of training varibale
+plt.scatter(X_train,Y_train)
+plt.plot(X_train ,model1.predict(X_train),color='red' )
+
+#graphical representation of testing dataset
+plt.scatter(X_test,Y_test)
+plt.plot(X_train ,model1.predict(X_train) ,color='red')
+
+#splitting into training and testing dataset
+x=df.drop(['price'],axis=1)
+y=df.price
+x_train,x_test,y_train,y_test = train_test_split(x,y,random_state=1)
+models=LinearRegression()
+model = models.fit(x_train,y_train)
+y_predict = models.predict(x_test)
+b=r2_score(y_test,y_predict)
+b
+
+print("r2 score of the Univariate linear Regression is : {}".format(a))
+print("r2 score of the Multiple linear Regression is : {}".format(b)) 
+
+
+Practical 3 Logistics Regression 
+
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+raw_mail_data = pd.read_csv('/content/mail_data.csv')
+
+print(raw_mail_data) 
+
+# replace the null values with a null string
+mail_data = raw_mail_data.where((pd.notnull(raw_mail_data)),'')
+
+# printing the first 5 rows of the dataframe
+mail_data.head() 
+
+mail_data.shape
+
+label spam mail as 0;  ham mail as 1;
+
+mail_data.loc[mail_data['Category'] == 'spam', 'Category',] = 0
+mail_data.loc[mail_data['Category'] == 'ham', 'Category',] = 1 
+
+# separating the data as texts and label
+
+X = mail_data['Message']
+
+Y = mail_data['Category']
+
+print(X)
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=3)
+
+print(X.shape)
+print(X_train.shape)
+print(X_test.shape) 
+
+# transform the text data to feature vectors that can be used as input to the Logistic regression
+
+feature_extraction = TfidfVectorizer(min_df = 1, stop_words='english', lowercase='True')
+
+X_train_features = feature_extraction.fit_transform(X_train)
+X_test_features = feature_extraction.transform(X_test)
+
+# convert Y_train and Y_test values as integers
+
+Y_train = Y_train.astype('int')
+Y_test = Y_test.astype('int')
+
+print(X_train)
+
+model = LogisticRegression()
+
+# training the Logistic Regression model with the training data
+model.fit(X_train_features, Y_train)
+
+prediction_on_training_data = model.predict(X_train_features)
+accuracy_on_training_data = accuracy_score(Y_train, prediction_on_training_data)
+
+print('Accuracy on training data : ', accuracy_on_training_data)
+
+# prediction on test data
+
+prediction_on_test_data = model.predict(X_test_features)
+accuracy_on_test_data = accuracy_score(Y_test, prediction_on_test_data)
+
+print('Accuracy on test data : ', accuracy_on_test_data)
+
+
+input_mail = ["I've been searching for the right words to thank you for this breather. I promise i wont take your help for granted and will fulfil my promise. You have been wonderful and a blessing at all times"]
+
+# convert text to feature vectors
+input_data_features = feature_extraction.transform(input_mail)
+
+# making prediction
+
+prediction = model.predict(input_data_features)
+print(prediction)
+
+
+if (prediction[0]==1):
+  print('Ham mail')
+else:
+  print('Spam mail')
+    
+
+Practical 4 Features Transformation
+
+import pandas as pd
+df=pd.read_csv('titanic.csv', usecols=['Pclass','Age','Fare','Survived'])
+df.head() 
+
+df['Age'].fillna(df.Age.median(),inplace=True)
+df.isnull().sum()
+
+X=df.iloc[:,1:]
+y=df.iloc[:,0]
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42) 
+
+from sklearn.preprocessing import StandardScaler
+scaler=StandardScaler()
+### fit vs fit_transform
+X_train_scaled=scaler.fit_transform(X_train)
+X_train_scaled
+X_test_scaled=scaler.transform(X_test) 
+
+from sklearn.linear_model import LogisticRegression
+classification=LogisticRegression()
+classification.fit(X_train_scaled,y_train)
+LogisticRegression()
+classification.predict(X_test_scaled) 
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+from sklearn.preprocessing import MinMaxScaler
+min_max=MinMaxScaler()
+df_minmax=pd.DataFrame(min_max.fit_transform(X_train))
+df_minmax.head() 
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.pairplot(df_minmax) 
+
+plt.hist(df_minmax[1],bins=20)
+plt.hist(df_minmax[2],bins=20)
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+from sklearn.preprocessing import RobustScaler
+scaler=RobustScaler()
+df_robust_scaler=pd.DataFrame(scaler.fit_transform(X_train))
+df_robust_scaler.head() 
+
+scaler.transform(X_test)
+
+import seaborn as sns
+sns.pairplot(df_robust_scaler)
+
+import seaborn as sns
+sns.pairplot(df)
+
+plt.hist(df_robust_scaler[2],bins=20)
+plt.hist(df_robust_scaler[1],bins=20) 
+
+df=pd.read_csv('titanic.csv',usecols=['Age','Fare','Survived'])
+
+df['Age']=df['Age'].fillna(df['Age'].median())
+
+import matplotlib.pyplot as plt
+import scipy.stats as stat
+import pylab 
+#### If you want to check whether feature is guassian or normal distributed
+#### Q-Q plot
+def plot_data(df,feature):
+    plt.figure(figsize=(10,6))
+        plt.subplot(1,2,1)
+            df[feature].hist()
+                plt.subplot(1,2,2)
+                    stat.probplot(df[feature],dist='norm',plot=pylab)
+plt.show()
+plot_data(df,'Age')  
+
+import numpy as np
+df['Age_log']=np.log(df['Age'])
+plot_data(df,'Age_log') 
+
+df['Age_reciprocal']=1/df.Age
+plot_data(df,'Age_reciprocal')
+
+df['Age_sqaure']=df.Age**(1/2)
+plot_data(df,'Age_sqaure')
+
+df['Age_exponential']=df.Age**(1/1.2)
+plot_data(df,'Age_exponential')
+
+df['Age_Boxcox'],parameters=stat.boxcox(df['Age'])
+print(parameters) 
+
+plot_data(df,'Age_Boxcox')
+plot_data(df,'Fare')
+df['Fare_log']=np.log1p(df['Fare'])
+plot_data(df,'Fare_log')
+df['Fare_Boxcox'],parameters=stat.boxcox(df['Fare']+1)
+plot_data(df,'Fare_Boxcox') 
+
+Practical 5 decision trees 
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+from sklearn.preprocessing import LabelEncoder #for train test splitting
+from sklearn.model_selection import train_test_split #for decision tree object
+from sklearn.tree import DecisionTreeClassifier #for checking testing results
+from sklearn.metrics import classification_report, confusion_matrix #for visualizing tree 
+from sklearn.tree import plot_tree
+
+#reading the data
+df = sns.load_dataset('iris')
+df.head() 
+
+df.isnull().any()
+
+sns.pairplot(data=df, hue = 'species') 
+sns.heatmap(df.corr()) 
+target = df['species']
+df1 = df.copy()
+df1 = df1.drop('species', axis =1) 
+
+X = df1
+le = LabelEncoder()
+target = le.fit_transform(target)
+target 
+y = target
+X_train, X_test, y_train, y_test = train_test_split(X , y, test_size = 0.2, random_state = 42)
+
+print("Training split input- ", X_train.shape)
+print()
+print("Testing split input- ", X_test.shape)
+
+dtree=DecisionTreeClassifier()
+dtree.fit(X_train,y_train)
+
+print('Decision Tree Classifier Created')
+
+# Predicting the values of test data
+y_pred = dtree.predict(X_test)
+print("Classification report - \n", classification_report(y_test,y_pred))
+
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(5,5))
+sns.heatmap(data=cm,linewidths=.5, annot=True,square = True,  cmap = 'Blues')
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title = 'Accuracy Score: {0}'.format(dtree.score(X_test, y_test))
+plt.title(all_sample_title, size = 15) 
+
+
+
+# Visualising the graph without the use of graphviz
+plt.figure(figsize = (20,20))
+dec_tree = plot_tree(decision_tree=dtree, feature_names = df1.columns, class_names =["setosa", "vercicolor", "verginica"] , filled = True , precision = 4, rounded = True) 
+
+
+Practical 6 Random Forest Regressor 
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn import metrics
+
+
+gold_data = pd.read_csv('/content/gld_price_data.csv')
+
+gold_data.head() 
+gold_data.info() 
+
+gold_data.isnull().sum()
+gold_data.describe() 
+
+correlation = gold_data.corr()
+
+# constructing a heatmap to understand the correlatiom
+plt.figure(figsize = (8,8))
+sns.heatmap(correlation, cbar=True, square=True, fmt='.1f',annot=True, annot_kws={'size':8}, cmap='Blues')
+
+print(correlation['GLD']) 
+
+sns.distplot(gold_data['GLD'],color='green') 
+
+X = gold_data.drop(['Date','GLD'],axis=1)
+Y = gold_data['GLD']
+
+print(X) 
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.2, random_state=2)
+
+
+regressor = RandomForestRegressor(n_estimators=100)
+
+# training the model
+regressor.fit(X_train,Y_train) 
+
+test_data_prediction = regressor.predict(X_test)
+
+print(test_data_prediction)
+
+error_score = metrics.r2_score(Y_test, test_data_prediction)
+print("R squared error : ", error_score)
+
+Y_test = list(Y_test)
+
+plt.plot(Y_test, color='blue', label = 'Actual Value')
+plt.plot(test_data_prediction, color='green', label='Predicted Value')
+plt.title('Actual Price vs Predicted Price')
+plt.xlabel('Number of values')
+plt.ylabel('GLD Price')
+plt.legend()
+plt.show() 
+
+
+
